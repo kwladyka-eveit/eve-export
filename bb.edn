@@ -1,0 +1,11 @@
+{:paths []
+ :deps {org.babashka/cli {:mvn/version "0.4.39"}}
+ :tasks
+ {sde-zzeve-com {:doc "Download all JSONs from https://sde.zzeve.com/tables.json"
+                 :task (let [tables (-> (org.httpkit.client/get "https://sde.zzeve.com/tables.json")
+                                      (deref)
+                                      :body
+                                      (cheshire.core/parse-string true))]
+                         (doseq [{:keys [name href]} tables]
+                           (clojure.java.io/copy (:body (deref (org.httpkit.client/get href {:as :stream})))
+                             (clojure.java.io/file (str "./sde-zzeve-com/" name ".json")))))}}}
